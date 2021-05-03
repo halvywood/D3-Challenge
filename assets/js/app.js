@@ -51,3 +51,63 @@ function renderText(circletextGroup, newXScale, newYScale, chosenXAxis, chosenYA
         .attr("y", d => newYScale(d[chosenYAxis]));
     return circletextGroup;
 }
+// Function used for updating circles group with new tooltip.
+function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup, textGroup) {
+    // Conditional for X Axis.
+    if (chosenXAxis === "poverty") {
+        var xlabel = "Poverty: ";
+    } else if (chosenXAxis === "income") {
+        var xlabel = "Median Income: "
+    } else {
+        var xlabel = "Age: "
+    }
+    // Conditional for Y Axis.
+    if (chosenYAxis === "healthcare") {
+        var ylabel = "Lacks Healthcare: ";
+    } else if (chosenYAxis === "smokes") {
+        var ylabel = "Smokers: "
+    } else {
+        var ylabel = "Obesity: "
+    }
+    // Define tooltip.
+    var toolTip = d3.tip()
+        .offset([120, -60])
+        .attr("class", "d3-tip")
+        .html(function(d) {
+            if (chosenXAxis === "age") {
+                // All yAxis tooltip labels presented and formated as %.
+                // Display Age without format for xAxis.
+                return (`${d.state}<hr>${xlabel} ${d[chosenXAxis]}<br>${ylabel}${d[chosenYAxis]}%`);
+                } else if (chosenXAxis !== "poverty" && chosenXAxis !== "age") {
+                // Display Income in dollars for xAxis.
+                return (`${d.state}<hr>${xlabel}$${d[chosenXAxis]}<br>${ylabel}${d[chosenYAxis]}%`);
+                } else {
+                // Display Poverty as percentage for xAxis.
+                return (`${d.state}<hr>${xlabel}${d[chosenXAxis]}%<br>${ylabel}${d[chosenYAxis]}%`);
+                }      
+        });
+    circlesGroup.call(toolTip);
+    // Create "mouseover" event listener to display tool tip.
+    circlesGroup
+        .on("mouseover", function(data) {
+            toolTip.show(data, this);
+        })
+        .on("mouseout", function(data) {
+            toolTip.hide(data);
+        });
+    textGroup
+        .on("mouseover", function(data) {
+            toolTip.show(data, this);
+        })
+        .on("mouseout", function(data) {
+            toolTip.hide(data);
+        });
+    return circlesGroup;
+}
+
+
+
+makeResponsive();
+// Event listener for window resize.
+// When the browser window is resized, makeResponsive() is called.
+d3.select(window).on("resize", makeResponsive);
